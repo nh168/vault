@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Persoonlijke Vault</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(to bottom right, #0f172a, #1e293b);
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+    }
+
+    .icon {
+      width: 32px;
+      height: 32px;
+      color: #60a5fa;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #475569;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #334155;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .btn-success {
+      background: #16a34a;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #15803d;
+    }
+
+    .input {
+      width: 100%;
+      padding: 0.5rem;
+      background: #334155;
+      border: 1px solid #475569;
+      border-radius: 0.5rem;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .input::placeholder {
+      color: #94a3b8;
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid;
+    }
+
+    .alert-error {
+      background: rgba(127, 29, 29, 0.2);
+      border-color: #b91c1c;
+      color: #fca5a5;
+    }
+
+    .alert-success {
+      background: rgba(20, 83, 45, 0.2);
+      border-color: #16a34a;
+      color: #86efac;
+    }
+
+    .form {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-bottom: 0.25rem;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .search-row input {
+      flex: 1;
+    }
+
+    .backup-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid #334155;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 0.75rem 1rem;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab.active {
+      color: #60a5fa;
+      border-bottom-color: #60a5fa;
+    }
+
+    .entries {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .entry-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      transition: all 0.2s;
+    }
+
+    .entry-card:hover {
+      border-color: #475569;
+    }
+
+    .entry-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 0.75rem;
+      word-break: break-word;
+    }
+
+    .entry-field {
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .entry-label {
+      color: #94a3b8;
+    }
+
+    .entry-value {
+      color: #e2e8f0;
+      word-break: break-word;
+    }
+
+    .entry-password-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .entry-password {
+      font-family: 'Monaco', 'Courier New', monospace;
+      flex: 1;
+    }
+
+    .entry-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .entry-actions button {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .login-form {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom right, #0f172a, #1e293b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .login-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-box h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.875rem;
+    }
+
+    .login-box p {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 1.5rem;
+    }
+
+    .login-box .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .login-box .btn {
+      width: 100%;
+    }
+
+    .warning {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #94a3b8;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .entries {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        font-size: 0.875rem;
+      }
+
+      .tab {
+        padding: 0.5rem 0.75rem;
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Form -->
+<div id="loginForm" class="login-form">
+  <div class="login-box">
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+      <div style="font-size: 2rem; margin-bottom: 1rem;">🔐</div>
+      <h1>Persoonlijke Vault</h1>
+    </div>
+
+    <div id="loginError" class="alert alert-error hidden"></div>
+
+    <form id="loginFormElement" style="display: none;">
+      <div class="form-group">
+        <label>Master Wachtwoord</label>
+        <input type="password" id="loginPassword" class="input" placeholder="Voer je wachtwoord in" autofocus>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Inloggen</button>
+    </form>
+
+    <form id="setupFormElement">
+      <div class="form-group">
+        <label>Master Wachtwoord (min. 12 karakters)</label>
+        <input type="password" id="setupPassword" class="input" placeholder="Kies een sterk wachtwoord">
+      </div>
+      <div class="form-group" style="margin-top: 1rem;">
+        <label>Bevestig Wachtwoord</label>
+        <input type="password" id="setupPasswordConfirm" class="input" placeholder="Herhaal wachtwoord">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Vault Aanmaken</button>
+    </form>
+
+    <p class="warning">⚠️ Onthoud dit wachtwoord! Je kunt het niet resetten.</p>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="mainApp" class="hidden">
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <div style="font-size: 2rem;">🔐</div>
+        <h1>Persoonlijke Vault</h1>
+      </div>
+      <button id="logoutBtn" class="btn btn-danger">🚪 Uitloggen</button>
+    </div>
+
+    <!-- Alerts -->
+    <div id="errorAlert" class="alert alert-error hidden"></div>
+    <div id="successAlert" class="alert alert-success hidden"></div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="search-row">
+        <input type="text" id="searchInput" class="input" placeholder="Zoeken...">
+        <button id="newBtn" class="btn btn-primary">➕ Nieuw</button>
+      </div>
+      <div class="backup-row">
+        <button id="backupBtn" class="btn btn-secondary">⬇️ Backup</button>
+        <label class="btn btn-secondary" style="cursor: pointer;">
+          ⬆️ Herstellen
+          <input type="file" id="importInput" accept=".json" style="display: none;">
+        </label>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div id="formContainer" class="form hidden">
+      <h2 style="margin-bottom: 1rem;">Nieuw Entry</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Titel *</label>
+          <input type="text" id="formTitle" class="input" placeholder="Bijv: Gmail">
+        </div>
+        <div class="form-group">
+          <label>Categorie</label>
+          <select id="formCategory" class="input">
+            <option value="passwords">Wachtwoorden</option>
+            <option value="contacts">Contacten</option>
+            <option value="notes">Notities</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Gebruikersnaam</label>
+          <input type="text" id="formUsername" class="input" placeholder="Gebruikersnaam">
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" id="formEmail" class="input" placeholder="E-mail">
+        </div>
+        <div class="form-group" id="formPasswordGroup">
+          <label>Wachtwoord</label>
+          <input type="password" id="formPassword" class="input" placeholder="Wachtwoord">
+        </div>
+        <div class="form-group" id="formUrlGroup">
+          <label>URL</label>
+          <input type="text" id="formUrl" class="input" placeholder="https://...">
+        </div>
+        <div class="form-group" id="formPhoneGroup" style="display: none;">
+          <label>Telefoonnummer</label>
+          <input type="tel" id="formPhone" class="input" placeholder="Telefoonnummer">
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Notities</label>
+          <textarea id="formNotes" class="input" placeholder="Extra informatie"></textarea>
+        </div>
+      </div>
+      <div class="form-buttons">
+        <button id="savBtn" class="btn btn-success">💾 Opslaan</button>
+        <button id="cancelBtn" class="btn btn-secondary">Annuleren</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="passwords">🔑 Wachtwoorden <span id="countPasswords">(0)</span></button>
+      <button class="tab" data-tab="contacts">👥 Contacten <span id="countContacts">(0)</span></button>
+      <button class="tab" data-tab="notes">📝 Notities <span id="countNotes">(0)</span></button>
+    </div>
+
+    <!-- Entries -->
+    <div id="entriesContainer" class="entries"></div>
+  </div>
+</div>
+
+<script>
+  class EncryptedVault {
+    constructor() {
+      this.masterPassword = null;
+      this.entries = [];
+      this.currentTab = 'passwords';
+      this.editingId = null;
+      this.visiblePasswords = new Set();
+      this.init();
+    }
+
+    async init() {
+      this.attachEventListeners();
+      const hasVault = localStorage.getItem('vault_encrypted');
+      
+      if (hasVault) {
+        document.getElementById('setupFormElement').style.display = 'none';
+        document.getElementById('loginFormElement').style.display = 'block';
+      } else {
+        document.getElementById('loginFormElement').style.display = 'none';
+        document.getElementById('setupFormElement').style.display = 'block';
+      }
+    }
+
+    attachEventListeners() {
+      // Login/Setup
+      document.getElementById('setupFormElement').addEventListener('submit', e => this.handleSetup(e));
+      document.getElementById('loginFormElement').addEventListener('submit', e => this.handleLogin(e));
+      
+      // Main app
+      document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+      document.getElementById('newBtn').addEventListener('click', () => this.showForm());
+      document.getElementById('savBtn').addEventListener('click', () => this.saveEntry());
+      document.getElementById('cancelBtn').addEventListener('click', () => this.hideForm());
+      document.getElementById('backupBtn').addEventListener('click', () => this.backup());
+      document.getElementById('importInput').addEventListener('change', e => this.import(e));
+      document.getElementById('searchInput').addEventListener('input', () => this.render());
+      
+      // Tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', e => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          e.target.closest('.tab').classList.add('active');
+          this.currentTab = e.target.closest('.tab').dataset.tab;
+          this.render();
+        });
+      });
+
+      // Form category change
+      document.getElementById('formCategory').addEventListener('change', e => {
+        const isPasswords = e.target.value === 'passwords';
+        const isContacts = e.target.value === 'contacts';
+        document.getElementById('formPasswordGroup').style.display = isPasswords ? 'flex' : 'none';
+        document.getElementById('formUrlGroup').style.display = isPasswords ? 'flex' : 'none';
+        document.getElementById('formPhoneGroup').style.display = isContacts ? 'flex' : 'none';
+      });
+    }
+
+    async handleSetup(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('setupPassword').value;
+      const pwdConfirm = document.getElementById('setupPasswordConfirm').value;
+
+      if (pwd.length < 12) {
+        this.showError('Wachtwoord moet minstens 12 karakters zijn');
+        return;
+      }
+
+      if (pwd !== pwdConfirm) {
+        this.showError('Wachtwoorden komen niet overeen');
+        return;
+      }
+
+      try {
+        console.log('Starting vault setup...');
+        this.showError('⏳ Vault aan het aanmaken... even geduld');
+        
+        const encryptedVault = await this.encrypt(JSON.stringify({ entries: [] }), pwd);
+        console.log('Encryption done, saving...');
+        
+        localStorage.setItem('vault_encrypted', encryptedVault);
+        this.masterPassword = pwd;
+        this.entries = [];
+        
+        console.log('Showing app...');
+        this.showApp();
+        this.showSuccess('✅ Vault aangemaakt!');
+      } catch (err) {
+        console.error('Setup error:', err);
+        this.showError('❌ Fout: ' + err.message);
+      }
+    }
+
+    async handleLogin(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('loginPassword').value;
+
+      try {
+        console.log('Attempting login...');
+        this.showError('⏳ Bezig met inloggen...');
+        
+        const encryptedVault = localStorage.getItem('vault_encrypted');
+        if (!encryptedVault) {
+          throw new Error('Vault niet gevonden');
+        }
+        
+        const decryptedData = await this.decrypt(encryptedVault, pwd);
+        const vaultData = JSON.parse(decryptedData);
+        this.masterPassword = pwd;
+        this.entries = vaultData.entries || [];
+        
+        console.log('Login successful');
+        this.showApp();
+        this.showSuccess('✅ Ingelogd!');
+      } catch (err) {
+        console.error('Login error:', err);
+        this.showError('❌ Onjuist wachtwoord of fout: ' + err.message);
+        document.getElementById('loginPassword').value = '';
+      }
+    }
+
+    showApp() {
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      this.render();
+    }
+
+    logout() {
+      this.masterPassword = null;
+      this.entries = [];
+      document.getElementById('mainApp').classList.add('hidden');
+      document.getElementById('loginForm').classList.remove('hidden');
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('loginPassword').focus();
+    }
+
+    showForm() {
+      this.editingId = null;
+      this.resetForm();
+      document.getElementById('formContainer').classList.remove('hidden');
+      document.getElementById('formTitle').focus();
+    }
+
+    hideForm() {
+      document.getElementById('formContainer').classList.add('hidden');
+      this.resetForm();
+    }
+
+    resetForm() {
+      document.getElementById('formTitle').value = '';
+      document.getElementById('formUsername').value = '';
+      document.getElementById('formPassword').value = '';
+      document.getElementById('formEmail').value = '';
+      document.getElementById('formUrl').value = '';
+      document.getElementById('formCategory').value = 'passwords';
+      document.getElementById('formPhone').value = '';
+      document.getElementById('formNotes').value = '';
+      document.querySelector('#formContainer h2').textContent = 'Nieuw Entry';
+    }
+
+    saveEntry() {
+      const title = document.getElementById('formTitle').value.trim();
+      if (!title) {
+        this.showError('Titel is verplicht');
+        return;
+      }
+
+      const entry = {
+        id: this.editingId || Date.now(),
+        title: document.getElementById('formTitle').value,
+        username: document.getElementById('formUsername').value,
+        password: document.getElementById('formPassword').value,
+        email: document.getElementById('formEmail').value,
+        url: document.getElementById('formUrl').value,
+        category: document.getElementById('formCategory').value,
+        phone: document.getElementById('formPhone').value,
+        notes: document.getElementById('formNotes').value
+      };
+
+      if (this.editingId) {
+        this.entries = this.entries.map(e => e.id === this.editingId ? entry : e);
+      } else {
+        this.entries.push(entry);
+      }
+
+      this.save();
+      this.hideForm();
+      this.showSuccess('Opgeslagen!');
+    }
+
+    editEntry(id) {
+      const entry = this.entries.find(e => e.id === id);
+      if (!entry) return;
+
+      this.editingId = id;
+      document.getElementById('formTitle').value = entry.title;
+      document.getElementById('formUsername').value = entry.username || '';
+      document.getElementById('formPassword').value = entry.password || '';
+      document.getElementById('formEmail').value = entry.email || '';
+      document.getElementById('formUrl').value = entry.url || '';
+      document.getElementById('formCategory').value = entry.category;
+      document.getElementById('formPhone').value = entry.phone || '';
+      document.getElementById('formNotes').value = entry.notes || '';
+      document.querySelector('#formContainer h2').textContent = 'Bewerk Entry';
+      
+      // Trigger category change
+      const event = new Event('change');
+      document.getElementById('formCategory').dispatchEvent(event);
+      
+      document.getElementById('formContainer').classList.remove('hidden');
+      document.getElementById('formTitle').focus();
+    }
+
+    deleteEntry(id) {
+      if (confirm('Zeker wissen?')) {
+        this.entries = this.entries.filter(e => e.id !== id);
+        this.save();
+        this.showSuccess('Verwijderd!');
+      }
+    }
+
+    async save() {
+      try {
+        const encryptedVault = await this.encrypt(JSON.stringify({ entries: this.entries }), this.masterPassword);
+        localStorage.setItem('vault_encrypted', encryptedVault);
+      } catch (err) {
+        this.showError('Fout bij opslaan');
+      }
+    }
+
+    backup() {
+      const dataStr = JSON.stringify(this.entries, null, 2);
+      const element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(dataStr));
+      element.setAttribute('download', `vault-backup-${new Date().toISOString().split('T')[0]}.json`);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      this.showSuccess('Backup gedownload!');
+    }
+
+    import(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (!Array.isArray(imported)) throw new Error('Ongeldig formaat');
+
+          this.entries = [...this.entries, ...imported.filter(item => !this.entries.find(e => e.id === item.id))];
+          await this.save();
+          this.render();
+          this.showSuccess('Backup geïmporteerd!');
+        } catch (err) {
+          this.showError('Fout bij importeren: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    }
+
+    render() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = this.entries.filter(entry => {
+        const matchesTab = entry.category === this.currentTab;
+        const matchesSearch = entry.title.toLowerCase().includes(search) ||
+                            entry.username?.toLowerCase().includes(search) ||
+                            entry.email?.toLowerCase().includes(search);
+        return matchesTab && matchesSearch;
+      });
+
+      // Update counts
+      document.getElementById('countPasswords').textContent = `(${this.entries.filter(e => e.category === 'passwords').length})`;
+      document.getElementById('countContacts').textContent = `(${this.entries.filter(e => e.category === 'contacts').length})`;
+      document.getElementById('countNotes').textContent = `(${this.entries.filter(e => e.category === 'notes').length})`;
+
+      const container = document.getElementById('entriesContainer');
+      container.innerHTML = '';
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state">Geen entries gevonden</div>';
+        return;
+      }
+
+      filtered.forEach(entry => {
+        const card = document.createElement('div');
+        card.className = 'entry-card';
+        card.innerHTML = `
+          <div class="entry-title">${this.escapeHtml(entry.title)}</div>
+          ${entry.category === 'passwords' ? `
+            ${entry.username ? `<div class="entry-field"><span class="entry-label">Gebruiker:</span> <span class="entry-value">${this.escapeHtml(entry.username)}</span></div>` : ''}
+            ${entry.email ? `<div class="entry-field"><span class="entry-label">Email:</span> <span class="entry-value">${this.escapeHtml(entry.email)}</span></div>` : ''}
+            ${entry.password ? `<div class="entry-field">
+              <span class="entry-label">Wachtwoord:</span>
+              <div class="entry-password-group">
+                <span class="entry-password" id="pwd-${entry.id}">••••••••</span>
+                <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="vault.togglePassword(${entry.id})">👁️</button>
+              </div>
+            </div>` : ''}
+            ${entry.url ? `<div class="entry-field"><span class="entry-label">URL:</span> <span class="entry-value"><a href="${this.escapeHtml(entry.url)}" target="_blank" style="color: #60a5fa;">${this.escapeHtml(entry.url)}</a></span></div>` : ''}
+          ` : ''}
+          ${entry.category === 'contacts' ? `
+            ${entry.username ? `<div class="entry-field"><span class="entry-label">Naam:</span> <span class="entry-value">${this.escapeHtml(entry.username)}</span></div>` : ''}
+            ${entry.email ? `<div class="entry-field"><span class="entry-label">Email:</span> <span class="entry-value">${this.escapeHtml(entry.email)}</span></div>` : ''}
+            ${entry.phone ? `<div class="entry-field"><span class="entry-label">Tel:</span> <span class="entry-value">${this.escapeHtml(entry.phone)}</span></div>` : ''}
+          ` : ''}
+          ${entry.category === 'notes' ? `
+            <div class="entry-field" style="white-space: pre-wrap;">${this.escapeHtml(entry.notes)}</div>
+          ` : ''}
+          ${entry.notes && entry.category !== 'notes' ? `<div class="entry-field" style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem;">📌 ${this.escapeHtml(entry.notes.substring(0, 50))}...</div>` : ''}
+          <div class="entry-actions">
+            <button class="btn btn-secondary" style="flex: 1;" onclick="vault.editEntry(${entry.id})">✏️ Bewerk</button>
+            <button class="btn btn-danger" style="flex: 1;" onclick="vault.deleteEntry(${entry.id})">🗑️ Wis</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    togglePassword(id) {
+      const el = document.getElementById(`pwd-${id}`);
+      const entry = this.entries.find(e => e.id === id);
+      if (this.visiblePasswords.has(id)) {
+        el.textContent = '••••••••';
+        this.visiblePasswords.delete(id);
+      } else {
+        el.textContent = entry.password;
+        this.visiblePasswords.add(id);
+      }
+    }
+
+    escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    showError(msg) {
+      const el = document.getElementById('errorAlert');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 4000);
+    }
+
+    showSuccess(msg) {
+      const el = document.getElementById('successAlert');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 3000);
+    }
+
+    // Crypto
+    async deriveKey(password, salt = null) {
+      try {
+        if (!salt) {
+          salt = crypto.getRandomValues(new Uint8Array(16));
+        }
+        
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const key = await crypto.subtle.importKey('raw', data, 'PBKDF2', false, ['deriveBits']);
+        const derivedBits = await crypto.subtle.deriveBits(
+          { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+          key,
+          256
+        );
+        
+        return {
+          key: await crypto.subtle.importKey('raw', derivedBits, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']),
+          salt: salt
+        };
+      } catch (err) {
+        console.error('Key derivation error:', err);
+        throw new Error('Crypto fout: ' + err.message);
+      }
+    }
+
+    async encrypt(text, password) {
+      try {
+        console.log('Encrypting...');
+        const { key, salt } = await this.deriveKey(password);
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const encoder = new TextEncoder();
+        const data = encoder.encode(text);
+        
+        console.log('Running AES-GCM...');
+        const encrypted = await crypto.subtle.encrypt(
+          { name: 'AES-GCM', iv: iv },
+          key,
+          data
+        );
+        
+        const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+        combined.set(salt);
+        combined.set(iv, salt.length);
+        combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+        
+        const result = btoa(String.fromCharCode(...combined));
+        console.log('Encryption successful');
+        return result;
+      } catch (err) {
+        console.error('Encryption error:', err);
+        throw new Error('Encryptie fout: ' + err.message);
+      }
+    }
+
+    async decrypt(encryptedText, password) {
+      try {
+        console.log('Decrypting...');
+        if (!encryptedText) throw new Error('Geen versleutelde data');
+        
+        const combined = Uint8Array.from(atob(encryptedText), c => c.charCodeAt(0));
+        
+        const salt = combined.slice(0, 16);
+        const iv = combined.slice(16, 28);
+        const encrypted = combined.slice(28);
+        
+        console.log('Deriving key...');
+        const { key } = await this.deriveKey(password, salt);
+        
+        console.log('Running AES-GCM decryption...');
+        const decrypted = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv: iv },
+          key,
+          encrypted
+        );
+        
+        const decoder = new TextDecoder();
+        const result = decoder.decode(decrypted);
+        console.log('Decryption successful');
+        return result;
+      } catch (err) {
+        console.error('Decryption error:', err);
+        throw new Error('Decryptie fout: ' + err.message);
+      }
+    }
+  }
+
+  // Global instance
+  let vault;
+  document.addEventListener('DOMContentLoaded', () => {
+    vault = new EncryptedVault();
+  });
+</script>
+
+</body>
+</html>
