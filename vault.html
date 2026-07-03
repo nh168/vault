@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Vault">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%231e293b' width='180' height='180'/><text x='50%' y='50%' font-size='80' fill='%2360a5fa' text-anchor='middle' dy='.3em'>🔐</text></svg>">
   <title>Persoonlijke Vault</title>
   <style>
     * {
@@ -506,7 +510,7 @@
 
     async init() {
       this.attachEventListeners();
-      const hasVault = localStorage.getItem('vault_encrypted');
+      const hasVault = await dbGet('vault_encrypted');
       
       if (hasVault) {
         document.getElementById('setupFormElement').style.display = 'none';
@@ -573,7 +577,7 @@
         const encryptedVault = await this.encrypt(JSON.stringify({ entries: [] }), pwd);
         console.log('Encryption done, saving...');
         
-        localStorage.setItem('vault_encrypted', encryptedVault);
+        await dbSet('vault_encrypted', encryptedVault);
         this.masterPassword = pwd;
         this.entries = [];
         
@@ -594,7 +598,7 @@
         console.log('Attempting login...');
         this.showError('⏳ Bezig met inloggen...');
         
-        const encryptedVault = localStorage.getItem('vault_encrypted');
+        const encryptedVault = await dbGet('vault_encrypted');
         if (!encryptedVault) {
           throw new Error('Vault niet gevonden');
         }
@@ -717,7 +721,7 @@
     async save() {
       try {
         const encryptedVault = await this.encrypt(JSON.stringify({ entries: this.entries }), this.masterPassword);
-        localStorage.setItem('vault_encrypted', encryptedVault);
+        await dbSet('vault_encrypted', encryptedVault);
       } catch (err) {
         this.showError('Fout bij opslaan');
       }
@@ -935,10 +939,90 @@
     }
   }
 
+  // IndexedDB helpers
+  const DB_NAME = 'VaultDB';
+  const STORE_NAME = 'vault';
+
+  async function initDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, 1);
+      
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+      
+      request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME);
+        }
+      };
+    });
+  }
+
+  async function dbSet(key, value) {
+    try {
+      const db = await initDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.put(value, key);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(true);
+      });
+    } catch (err) {
+      console.warn('IndexedDB write failed, using memory:', err);
+      return true;
+    }
+  }
+
+  async function dbGet(key) {
+    try {
+      const db = await initDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.get(key);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+      });
+    } catch (err) {
+      console.warn('IndexedDB read failed:', err);
+      return null;
+    }
+  }
+
   // Global instance
   let vault;
   document.addEventListener('DOMContentLoaded', () => {
     vault = new EncryptedVault();
+    
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('data:application/javascript,' + encodeURIComponent(`
+        self.addEventListener('install', (event) => {
+          event.waitUntil(self.skipWaiting());
+        });
+        
+        self.addEventListener('activate', (event) => {
+          event.waitUntil(self.clients.claim());
+        });
+        
+        self.addEventListener('fetch', (event) => {
+          if (event.request.method === 'GET') {
+            event.respondWith(
+              caches.open('vault-v1').then((cache) => {
+                return cache.match(event.request).then((response) => {
+                  return response || fetch(event.request).then((response) => {
+                    cache.put(event.request, response.clone());
+                    return response;
+                  }).catch(() => response);
+                });
+              })
+            );
+          }
+        });
+      `)).catch(err => console.log('SW registration failed:', err));
+    }
   });
 </script>
 
